@@ -161,12 +161,19 @@ const post = async <V = Variables>({
   operationName?: string
   middleware?: (request: Dom.RequestInit) => Dom.RequestInit | Promise<Dom.RequestInit>
 }) => {
-  const body = createRequestBody(query, variables, operationName, fetchOptions.jsonSerializer)
+  const useMsgpack = true
+  const body = createRequestBody(query, variables, operationName, fetchOptions.jsonSerializer, useMsgpack)
 
   let options: Dom.RequestInit = {
     method: 'POST',
     headers: {
-      ...(typeof body === 'string' ? { 'Content-Type': 'application/json' } : {}),
+      ...(useMsgpack
+        ? { 'Content-Type': 'application/msgpack', Accept: 'application/msgpack' }
+        : typeof body === 'string'
+        ? {
+            'Content-Type': 'application/json',
+          }
+        : {}),
       ...headers,
     },
     body,
