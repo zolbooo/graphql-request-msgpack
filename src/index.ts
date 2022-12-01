@@ -1,3 +1,4 @@
+import * as msgpack from '@msgpack/msgpack'
 import crossFetch, * as CrossFetch from 'cross-fetch'
 import { TypedDocumentNode } from '@graphql-typed-document-node/core'
 import { OperationDefinitionNode, DocumentNode } from 'graphql/language/ast'
@@ -655,6 +656,8 @@ async function getResult(response: Dom.Response, jsonSerializer = defaultJsonSer
 
   if (contentType && contentType.toLowerCase().startsWith('application/json')) {
     return jsonSerializer.parse(await response.text())
+  } else if (contentType && contentType.toLowerCase().startsWith('application/msgpack')) {
+    return msgpack.decode(await response.arrayBuffer())
   } else {
     return response.text()
   }
