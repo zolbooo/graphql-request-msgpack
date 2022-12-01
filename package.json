@@ -51,6 +51,7 @@
     "form-data": "^3.0.0"
   },
   "peerDependencies": {
+    "@msgpack/msgpack": "^2.8.0",
     "graphql": "14 - 16"
   },
   "devDependencies": {
