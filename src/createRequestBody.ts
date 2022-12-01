@@ -1,3 +1,4 @@
+import * as msgpack from '@msgpack/msgpack'
 import { isExtractableFile, extractFiles, ExtractableFile } from 'extract-files'
 import FormDataNode from 'form-data'
 import { defaultJsonSerializer } from './defaultJsonSerializer'
@@ -21,8 +22,9 @@ export default function createRequestBody(
   query: string | string[],
   variables?: Variables | Variables[],
   operationName?: string,
-  jsonSerializer = defaultJsonSerializer
-): string | FormData {
+  jsonSerializer = defaultJsonSerializer,
+  useMsgpack = false
+): string | FormData | Uint8Array {
   const { clone, files } = extractFiles({ query, variables, operationName }, '', isExtractableFileEnhanced)
 
   if (files.size === 0) {
@@ -43,7 +45,7 @@ export default function createRequestBody(
       []
     )
 
-    return jsonSerializer.stringify(payload)
+    return useMsgpack ? msgpack.encode(payload) : jsonSerializer.stringify(payload)
   }
 
   const Form = typeof FormData === 'undefined' ? FormDataNode : FormData
