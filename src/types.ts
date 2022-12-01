@@ -72,6 +72,7 @@ export type PatchedRequestInit = Omit<Dom.RequestInit, 'headers'> & {
   headers?: MaybeFunction<Dom.RequestInit['headers']>
   requestMiddleware?: (request: Dom.RequestInit) => Dom.RequestInit | Promise<Dom.RequestInit>
   responseMiddleware?: (response: Response<unknown> | Error) => void
+  bodyHandler?: (body: any) => Promise<any>
 }
 
 export type BatchRequestDocument<V = Variables> = {

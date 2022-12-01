@@ -279,6 +279,7 @@ export class GraphQLClient {
       method,
       fetchOptions,
       middleware: requestMiddleware,
+      bodyHandler: this.options.bodyHandler,
     })
       .then((response) => {
         if (responseMiddleware) {
@@ -345,6 +346,7 @@ export class GraphQLClient {
       method,
       fetchOptions,
       middleware: requestMiddleware,
+      bodyHandler: this.options.bodyHandler,
     })
       .then((response) => {
         if (responseMiddleware) {
@@ -405,6 +407,7 @@ export class GraphQLClient {
       method,
       fetchOptions,
       middleware: requestMiddleware,
+      bodyHandler: this.options.bodyHandler,
     })
       .then((response) => {
         if (responseMiddleware) {
@@ -461,6 +464,7 @@ async function makeRequest<T = any, V = Variables>({
   method = 'POST',
   fetchOptions,
   middleware,
+  bodyHandler,
 }: {
   url: string
   query: string | string[]
@@ -470,6 +474,7 @@ async function makeRequest<T = any, V = Variables>({
   fetch: any
   method: string
   fetchOptions: Dom.RequestInit
+  bodyHandler?: (res: any) => Promise<any>
   middleware?: (request: Dom.RequestInit) => Dom.RequestInit | Promise<Dom.RequestInit>
 }): Promise<Response<T>> {
   const fetcher = method.toUpperCase() === 'POST' ? post : get
@@ -485,7 +490,7 @@ async function makeRequest<T = any, V = Variables>({
     fetchOptions,
     middleware,
   })
-  const result = await getResult(response, fetchOptions.jsonSerializer)
+  const result = await getResult(response, fetchOptions.jsonSerializer, bodyHandler)
 
   const successfullyReceivedData =
     isBathchingQuery && Array.isArray(result) ? !result.some(({ data }) => !data) : !!result.data
@@ -656,7 +661,11 @@ export default request
 /**
  * todo
  */
-async function getResult(response: Dom.Response, jsonSerializer = defaultJsonSerializer): Promise<any> {
+async function getResult(
+  response: Dom.Response,
+  jsonSerializer = defaultJsonSerializer,
+  bodyHandler?: (data: any) => Promise<any>
+): Promise<any> {
   let contentType: string | undefined
 
   response.headers.forEach((value, key) => {
@@ -668,7 +677,7 @@ async function getResult(response: Dom.Response, jsonSerializer = defaultJsonSer
   if (contentType && contentType.toLowerCase().startsWith('application/json')) {
     return jsonSerializer.parse(await response.text())
   } else if (contentType && contentType.toLowerCase().startsWith('application/msgpack')) {
-    return msgpack.decode(await response.arrayBuffer())
+    return msgpack.decode(bodyHandler ? await bodyHandler(response) : await response.arrayBuffer())
   } else {
     return response.text()
   }
