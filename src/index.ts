@@ -161,7 +161,11 @@ const post = async <V = Variables>({
   operationName?: string
   middleware?: (request: Dom.RequestInit) => Dom.RequestInit | Promise<Dom.RequestInit>
 }) => {
-  const useMsgpack = true
+  const resolvedHeaders = resolveHeaders(headers)
+  const useMsgpack = !!Object.entries(resolvedHeaders).find(
+    ([key, value]) =>
+      key.toLowerCase() === 'content-type' && value.toLowerCase().startsWith('application/msgpack')
+  )
   const body = createRequestBody(query, variables, operationName, fetchOptions.jsonSerializer, useMsgpack)
 
   let options: Dom.RequestInit = {
