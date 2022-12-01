@@ -29,7 +29,7 @@ export default function createRequestBody(
 
   if (files.size === 0) {
     if (!Array.isArray(query)) {
-      return useMsgpack ? msgpack.encode(code) : jsonSerializer.stringify(clone)
+      return useMsgpack ? msgpack.encode(clone) : jsonSerializer.stringify(clone)
     }
 
     if (typeof variables !== 'undefined' && !Array.isArray(variables)) {
